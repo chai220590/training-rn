@@ -2,11 +2,20 @@ import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, TextInput} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
+import SysModal from '../../components/sys_modal';
+import axios from 'axios';
 
 const LoginScreen = () => {
   //handle when user input username and password
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // handle on hide modal
+  const onHideModal = () => {
+    setShowModal(false);
+  };
 
   const onChangedUsername = value => {
     setUsername(value);
@@ -21,13 +30,29 @@ const LoginScreen = () => {
     //validate
 
     if (username.length == 0 || password.length == 0) {
-      return console.log('Please enter login information.');
+      setErrorMessage('Please input login information.');
+      setShowModal(true);
+      return;
     }
 
-    console.log('click login', {
-      username,
-      password,
-    });
+    //call api
+    axios({
+      url: 'https://thaoquan.herokuapp.com/api/user/login',
+      method: 'POST',
+      data: {
+        username: username,
+        password: password,
+      },
+    })
+      .then(result => {
+        console.log(result.data);
+        //handle when login success
+        console.log('Handle Login');
+      })
+      .catch(error => {
+        setErrorMessage(error.response.data.error);
+        setShowModal(true);
+      });
   };
 
   return (
@@ -36,6 +61,11 @@ const LoginScreen = () => {
         backgroundColor: '#2E86C1',
         flex: 1,
       }}>
+      <SysModal
+        visible={showModal}
+        message={errorMessage}
+        onHide={onHideModal}
+      />
       <View
         style={{
           backgroundColor: 'white',
