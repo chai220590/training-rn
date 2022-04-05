@@ -4,8 +4,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import SysModal from '../../components/sys_modal';
 import axios from 'axios';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigation} from '@react-navigation/native';
 const LoginScreen = () => {
+  const navigation = useNavigation();
+
   //handle when user input username and password
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -45,9 +48,17 @@ const LoginScreen = () => {
       },
     })
       .then(result => {
-        console.log(result.data);
+        const currentUser = result.data.data.user;
         //handle when login success
         console.log('Handle Login');
+
+        //save information to storage
+        AsyncStorage.setItem('Username', currentUser.username);
+        AsyncStorage.setItem('Id', currentUser._id);
+        AsyncStorage.setItem('Role', currentUser.role);
+
+        //redirect to Home Screen
+        navigation.navigate('Home');
       })
       .catch(error => {
         setErrorMessage(error.response.data.error);
