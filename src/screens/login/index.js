@@ -6,6 +6,8 @@ import SysModal from '../../components/sys_modal';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
+import SysGlobalLoading from '../../components/sys_global';
+
 const LoginScreen = () => {
   const navigation = useNavigation();
 
@@ -14,7 +16,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
+  const [isLoading, setIsLoading] = useState(false);
   // handle on hide modal
   const onHideModal = () => {
     setShowModal(false);
@@ -37,33 +39,34 @@ const LoginScreen = () => {
       setShowModal(true);
       return;
     }
-
-    //call api
-    axios({
-      url: 'https://thaoquan.herokuapp.com/api/user/login',
-      method: 'POST',
-      data: {
-        username: username,
-        password: password,
-      },
-    })
-      .then(result => {
-        const currentUser = result.data.data.user;
-        //handle when login success
-        console.log('Handle Login');
-
-        //save information to storage
-        AsyncStorage.setItem('Username', currentUser.username);
-        AsyncStorage.setItem('Id', currentUser._id);
-        AsyncStorage.setItem('Role', currentUser.role);
-
-        //redirect to Home Screen
-        navigation.navigate('Home');
+    try {
+      setIsLoading(true);
+      //call api
+      axios({
+        url: 'https://thaoquan.herokuapp.com/api/user/login',
+        method: 'POST',
+        data: {
+          username: username,
+          password: password,
+        },
       })
-      .catch(error => {
-        setErrorMessage(error.response.data.error);
-        setShowModal(true);
-      });
+        .then(result => {
+          const currentUser = result.data.data.user;
+          //save information to storage
+          AsyncStorage.setItem('Username', currentUser.username);
+          AsyncStorage.setItem('Id', currentUser._id);
+          AsyncStorage.setItem('Role', currentUser.role);
+          //redirect to Home Screen
+          navigation.navigate('Home');
+        })
+        .catch(error => {
+          setErrorMessage(error.response.data.error);
+          setShowModal(true);
+          setIsLoading(false);
+        });
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -72,6 +75,7 @@ const LoginScreen = () => {
         backgroundColor: '#2E86C1',
         flex: 1,
       }}>
+      <SysGlobalLoading visible={isLoading} />
       <SysModal
         visible={showModal}
         message={errorMessage}
