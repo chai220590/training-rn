@@ -80,7 +80,7 @@ const UserManageScreen = () => {
   const onHideAlert = () => setShowAlert(false);
 
   return (
-    <View>
+    <View style={{flex:1}}>
       <SysModal
         message={messageAlert}
         onHide={onHideAlert}
@@ -129,11 +129,13 @@ const UserManageScreen = () => {
           />
         </View>
       </View>
-
+      <View style={{
+        flex:1,
+      }}>
       <FlatList
         refreshing={false}
         onRefresh={() => getData()}
-        data={userList.filter(user => user.username.search(keySearch) > -1)}
+        data={userList.filter(user => user.username.search(keySearch.toLocaleLowerCase()) > -1)}
         keyExtractor={item => item._id.toString()}
         renderItem={({item}) => {
           return (
@@ -204,6 +206,7 @@ const UserManageScreen = () => {
           );
         }}
       />
+      </View>
     </View>
   );
 };

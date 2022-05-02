@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, TextInput} from 'react-native';
+import {View, Text, TouchableOpacity, TextInput,Platform} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import SysModal from '../../components/sys_modal';
@@ -46,7 +46,7 @@ const LoginScreen = () => {
         url: 'https://thaoquan.herokuapp.com/api/user/login',
         method: 'POST',
         data: {
-          username: username,
+          username: username.toLocaleLowerCase(),
           password: password,
         },
       })
@@ -57,6 +57,7 @@ const LoginScreen = () => {
           AsyncStorage.setItem('Id', currentUser._id);
           AsyncStorage.setItem('Role', currentUser.role);
           //redirect to Home Screen
+          setIsLoading(false);
           navigation.navigate('Home');
         })
         .catch(error => {
@@ -149,6 +150,9 @@ const LoginScreen = () => {
                       flex: 1,
                     }}>
                     <TextInput
+                    style={{
+                      padding: Platform.OS == "android" ? 5 : 10,
+                    }}
                       value={username}
                       onChangeText={onChangedUsername}
                       placeholder={'Type your username'}
@@ -184,6 +188,9 @@ const LoginScreen = () => {
                       flex: 1,
                     }}>
                     <TextInput
+                    style={{
+                      padding: Platform.OS == "android" ? 5 : 10,
+                    }}
                       secureTextEntry={true}
                       placeholder={'Type your password'}
                       value={password}
